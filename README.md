@@ -1,3 +1,11 @@
+# Superpowers Custom
+
+Maintained fork of [obra/superpowers](https://github.com/obra/superpowers). Internal plugin name: `superpowers`. Custom marketplace: `superpowers-custom`.
+
+See [customization policy](docs/customization-policy.md), [installation and updates](docs/custom-installation.md), and [evaluation results](docs/custom-evaluation.md). Upstream documentation follows for historical context; use the custom installation guide, not upstream install commands.
+
+---
+
 # Superpowers
 
 Superpowers is a complete software development methodology for your coding agents, built on top of a set of composable skills and some initial instructions that make sure your agent uses them.

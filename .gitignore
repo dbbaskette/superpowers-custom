@@ -17,3 +17,6 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+
+# Reproducible local marketplace artifacts
+dist/
