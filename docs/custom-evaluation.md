@@ -27,8 +27,9 @@ Validation commands: node --test tests/custom/*.test.mjs; bash tests/hooks/test-
 bash tests/codex-plugin-sync/test-sync-to-codex-plugin.sh. Validate all 14 skill frontmatters
 with skill-creator quick_validate.py and the generated plugin with plugin-creator validate_plugin.py.
 
-Installed runtime behavior must be checked in a new Codex task; this task retains the old
-skill catalog. No repeated behavioral benchmark or Claude runtime installation is claimed.
+The fresh-session smoke check below verifies discovery and two skill reads; this existing
+task retains its old catalog. No repeated behavioral benchmark or Claude runtime installation
+is claimed.
 
 ## Executed validation
 
@@ -38,7 +39,9 @@ passed. All 60 installed file hashes matched the immutable package evidence. Cod
 shows only superpowers@superpowers-custom 6.3.0-custom.1, enabled. A fresh ephemeral
 Codex invocation discovered that release with no duplicate Superpowers catalog entries.
 The first invocation through the symlinked CLI could not locate its code-mode helper; this
-is a launcher-path issue, not a skill-discovery failure. Use the full app CLI path for that check.
+is a launcher-path issue, not a skill-discovery failure. Repeating with the full app CLI path
+succeeded: the fresh invocation read both installed entrypoints and correctly summarized
+diagnose-and-continue behavior for a test failure during approved work.
 
 Previous plugin caches are archived at
 /Users/dbbaskette/.codex/skill-backups/2026-09-12-superpowers-custom/previous-superpowers.tgz.
