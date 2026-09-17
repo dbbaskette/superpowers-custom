@@ -1,13 +1,13 @@
 {
   "name": "superpowers",
-  "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques",
-  "version": "6.3.0",
+  "description": "Maintained Superpowers fork: proportional planning, verification, and authorized delivery.",
+  "version": "6.3.0-custom.1",
   "author": {
     "name": "Jesse Vincent",
     "email": "jesse@fsck.com"
   },
-  "homepage": "https://github.com/obra/superpowers",
-  "repository": "https://github.com/obra/superpowers",
+  "homepage": "https://github.com/dbbaskette/superpowers-custom",
+  "repository": "https://github.com/dbbaskette/superpowers-custom",
   "license": "MIT",
   "keywords": [
     "skills",

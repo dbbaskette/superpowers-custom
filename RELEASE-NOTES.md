@@ -1,5 +1,12 @@
 # Superpowers Release Notes
 
+## 6.3.0-custom.1 (2026-09-12)
+
+- Rewrite all 14 workflow entrypoints for proportional planning, one substantial-work approval, coherent test ownership, and persistent authorized execution.
+- Preserve safety boundaries, explicit strict TDD, dependency ordering, useful assets, and shared platform hooks.
+- Add independent scenario evaluation, immutable local Codex packaging, symlink and failed-build protections, installation and rollback guidance.
+- This custom release targets Codex; other runtime package version metadata remains at its upstream baseline.
+
 ## v6.3.0 (2026-08-12)
 
 ### Harness Support
