@@ -1,7 +1,7 @@
 {
   "name": "superpowers",
   "description": "Maintained Superpowers fork: proportional planning, verification, and authorized delivery.",
-  "version": "6.3.0-custom.1",
+  "version": "6.4.1-custom.1",
   "author": {
     "name": "Jesse Vincent",
     "email": "jesse@fsck.com"

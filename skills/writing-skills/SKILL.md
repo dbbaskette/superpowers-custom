@@ -22,5 +22,7 @@ runs. No paid API or extra credentials are required merely to author a skill.
 
 Inspect callers before removing resources. Keep reusable scripts and domain references, but
 do not automatically route to obsolete process recipes. Report what was tested and limitations.
+Invoke bundled scripts through their interpreter (`bash scripts/tool.sh` or `node scripts/tool.js`);
+plugin extraction may strip executable bits. Apply this to helper-to-helper calls as well.
 Publish or install only within the user’s authorization; upstream synchronization should be
 reviewed and versioned, not overwrite local customizations silently.

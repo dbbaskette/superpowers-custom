@@ -1,5 +1,12 @@
 # Superpowers Release Notes
 
+## 6.4.1-custom.1 (2026-09-21)
+
+- Selectively backport v6.4.1 workspace ownership, review-range validation, and interpreter invocation fixes with their regression coverage.
+- Use the target merge base for branch reviews and consider implied edge cases in plans and review briefs.
+- Preserve combined approval, optional strict TDD and delegation, evidence reuse, custom packaging, and contributor policy.
+- Align the version with the reviewed upstream release and retain the custom suffix. This is a selective integration, not the full upstream v6.4.1 feature set.
+
 ## 6.3.0-custom.1 (2026-09-12)
 
 - Rewrite all 14 workflow entrypoints for proportional planning, one substantial-work approval, coherent test ownership, and persistent authorized execution.

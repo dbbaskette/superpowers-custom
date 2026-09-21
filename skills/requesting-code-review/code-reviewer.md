@@ -8,4 +8,9 @@ and use focused safe checks only for concrete uncertainty. Report limitations an
 findings with file/line evidence. Classify diagnostics by impact, not merely their presence.
 No edits, posting, approval, merge, or recursive review delegation are authorized by this brief.
 
+Check foreseeable inputs and failure modes within the approved behavior even when the spec
+does not enumerate them. Grade defects by their effect on users, not whether the trigger was
+named. Report consequential behavior left unassessed and why; distinguish a robustness defect
+from a proposed new feature. Findings do not grant authority to expand implementation scope.
+
 Return spec compliance, severity-ranked findings, and readiness with unresolved gaps.

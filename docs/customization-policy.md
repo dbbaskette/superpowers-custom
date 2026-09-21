@@ -4,6 +4,9 @@ This fork belongs to dbbaskette and deliberately differs from upstream process p
 Upstream source: obra/superpowers, baseline b36e0829c6d0140e93cfef2ca599b1b07d4a7797 (6.3.0).
 Retain upstream license and attribution. Internal skill namespace remains superpowers.
 
+Version 6.4.1-custom.1 selectively backports fixes from upstream v6.4.1 (5bf4e78).
+This is not a full v6.4.1 merge; see upstream-6.4.1-integration.md for adopted and deferred changes.
+
 Default: spec plus implementation plan for substantial work, one combined approval, then
 execution through verification. Clear small fixes and already-approved plans do not require
 another ceremony. Skills are model-neutral and honor host tool/authority boundaries.
