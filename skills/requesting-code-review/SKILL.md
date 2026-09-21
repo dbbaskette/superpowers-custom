@@ -10,6 +10,11 @@ files, and test evidence. Use an independent permitted invocation when it adds c
 do not require a second full review of every small fix or create duplicate review seats.
 Use code-reviewer.md as a concise brief template, not a fixed ritual.
 
+For a committed branch review, resolve the intended target and use its merge base with HEAD
+(for example, `git merge-base origin/main HEAD`) as the diff base. Using the target tip
+directly can misrepresent newer target changes as branch deletions. Include uncommitted
+changes separately when they are in scope; a commit-only review does not cover them.
+
 Review should evaluate acceptance criteria, correctness, security, regressions, and meaningful
 coverage. Give enough surrounding context to verify real findings. Do not preselect the verdict
 or suppress relevant defects. Reviewers stay read-only and report uncertainty honestly.

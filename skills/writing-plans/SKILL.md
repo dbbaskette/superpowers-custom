@@ -13,6 +13,11 @@ Group tasks into coherent, independently verifiable slices. Include exact interf
 only when correctness depends on them; do not prewrite every implementation or require
 two-minute test/commit steps. Mechanical steps may adapt to the codebase without changing scope.
 
+Check likely inputs and failure modes implied by the requirements, including ones not named
+explicitly. Record consequential coverage gaps and assign appropriate checks to the task that
+owns the behavior. Use a short Review Focus section when helpful; no fixed count is required.
+Distinguish robustness within the approved behavior from new features that expand scope.
+
 Assign focused development checks to implementers and final integrated checks to one owner.
 Avoid a full-suite instruction in every task, reviewer brief, and release checklist. Require
 strict TDD only when explicitly requested by the user or repository.
