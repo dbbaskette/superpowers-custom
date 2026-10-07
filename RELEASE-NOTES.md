@@ -1,5 +1,13 @@
 # Superpowers Release Notes
 
+## 6.4.2-custom.1 (2026-10-06)
+
+- Preserve workspace ignore rules and normalize Windows workspace ownership paths.
+- Preserve literal replacement tokens in visual companion screens.
+- Make startup hooks tolerate an empty PATH; improve Windows Bash discovery and exit codes.
+- Add upstream regressions and a disposable macOS CI entry point using the shared Tart runner.
+- Preserve fork workflows and contributor instructions. Includes selected post-v6.4.2 development fixes, not a full upstream merge.
+
 ## 6.4.1-custom.1 (2026-09-21)
 
 - Selectively backport v6.4.1 workspace ownership, review-range validation, and interpreter invocation fixes with their regression coverage.

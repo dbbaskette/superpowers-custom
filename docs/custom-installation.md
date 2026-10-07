@@ -13,7 +13,7 @@ From this checkout, run the validation commands in custom-evaluation.md, then:
 node scripts/build-local-plugin.mjs
 # When replacing an existing registration that points at a different release directory:
 codex plugin marketplace remove superpowers-custom
-codex plugin marketplace add /Users/dbbaskette/Projects/superpowers-custom/dist/6.4.1-custom.1
+codex plugin marketplace add /Users/dbbaskette/Projects/superpowers-custom/dist/6.4.2-custom.1
 codex plugin add superpowers@superpowers-custom
 codex plugin list --json
 ```
