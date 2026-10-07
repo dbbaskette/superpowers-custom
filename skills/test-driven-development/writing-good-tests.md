@@ -80,10 +80,9 @@ BEFORE writing the test body:
 
 ## Principle 2: Exercise the Real Thing
 
-**The mock earns no assertions.** A mock assertion passes when the mock
-is present and fails when it is absent — it says nothing about the
-component. Assert the real component's behavior; if the mock is what you
-are checking, unmock it or delete the assertion.
+Assert the component's observable behavior. Checking only that a mock element
+exists proves little about the component using it. Interaction assertions are
+useful when arguments, call counts, or ordering are part of the boundary contract.
 
 ```typescript
 // ✅ Real behavior
@@ -116,15 +115,14 @@ part of the contract, assert them — a fake that accepts anything verifies
 nothing. Give each branch (success, error, malformed) its own fixture or
 spy, so the wrong branch cannot satisfy the expectation.
 
-**Mirror real data completely.** Mock the complete structure as it exists
-in reality — all documented fields — not just the ones your test reads.
-Partial mocks fail silently when downstream code reads an omitted field:
-the test passes while integration breaks.
+**Use small, contract-valid fixtures.** Include required fields and the values
+the tested path consumes. Add optional fields when their presence or absence
+affects behavior. A schema-valid fixture or focused integration check can catch
+shape drift without copying unrelated provider data into every test.
 
-**Production classes carry production methods only.** Cleanup that only
-tests need lives in test utilities, never as a `destroy()` on the
-production class. Ask: is this method called only from tests? Does this
-class own this resource's lifecycle? Wrong answers → test utility.
+Keep test-only orchestration in test utilities. A class that owns a resource
+may need a real cleanup method even when tests are its first caller; decide
+from lifecycle ownership rather than the current number of production callers.
 
 **Prefer real components over complex mocks.** When mock setup outgrows
 the test logic, mocks miss methods the real components have, or tests
@@ -139,18 +137,18 @@ BEFORE adding a mock or test helper:
   List the real method's side effects; keep the ones the test
   depends on real — mock the slow/external level below them.
 
-  Mock responses mirror the complete real structure.
+  Mock responses satisfy the relevant schema and exercised contract.
 
-  A method only tests call lives in test utilities, not production.
+  Test-only orchestration lives in test utilities; resource owners own cleanup.
 
-  About to assert on the mock itself?
-    Unmock it or delete the assertion.
+  About to assert only that a mock exists?
+    Assert the consumer's behavior or a contractual interaction instead.
 ```
 
 ## Tests Ship With the Implementation
 
-The TDD cycle — failing test, minimal implementation, refactor — is what
-"complete" means. Ship the tests the behavior needs and only those:
+When strict TDD is requested, follow its failing-test, implementation, and refactor
+cycle. Otherwise use the repository's testing cadence. Ship the tests the behavior needs:
 trivial code and human prose earn none, and a test written to satisfy
 process costs maintenance forever.
 
@@ -178,8 +176,8 @@ test as tautological.
 | Reach for a dependency test | Test your boundary contract, not their documented mechanics |
 | Want to assert on a mocked element | Test the real component, or unmock it |
 | Are about to mock a method | Learn its side effects; mock the slow/external level |
-| Build a mock response | Mirror the real structure completely |
-| Need cleanup only tests use | Put it in test utilities |
+| Build a mock response | Satisfy the relevant schema and exercised contract |
+| Need cleanup | Keep resource ownership separate from test-only orchestration |
 | Watch mock setup balloon | Switch to an integration test with real components |
 | Finish a test file | Run the mutation check |
 
@@ -193,6 +191,6 @@ test as tautological.
 - The test would still matter if only the framework remained
 - The test exists for coverage, checking no side effect or outcome
 - An assertion checks a `*-mock` test ID, or fails if you remove the mock
-- A method is called only from test files
+- A test-only orchestration method has leaked into production code
 - Mock setup is more than half the test, or you can't explain why the mock is needed
 - Mocking "just to be safe"

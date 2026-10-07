@@ -10,6 +10,10 @@ This is not a full v6.4.1 merge; see upstream-6.4.1-integration.md for adopted a
 Version 6.4.2-custom.1 retains that policy and selectively incorporates subsequent upstream
 development fixes. See upstream-6.4.2-integration.md for exact sources and validation scope.
 
+Version 6.4.2-custom.2 aligns conditional references and evaluation with the proportional
+workflow, fixes bootstrap detection, and separates current guidance from upstream history.
+See workflow-tightening-release.md for coverage, evidence, and local installation.
+
 Default: spec plus implementation plan for substantial work, one combined approval, then
 execution through verification. Clear small fixes and already-approved plans do not require
 another ceremony. Skills are model-neutral and honor host tool/authority boundaries.

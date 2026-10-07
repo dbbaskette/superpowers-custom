@@ -1,6 +1,6 @@
 ---
 name: subagent-driven-development
-description: "Execute an approved plan with permitted subagents and explicit integration ownership."
+description: "Coordinate an approved implementation plan when work is assigned to permitted subagents."
 ---
 
 # Subagent-driven implementation

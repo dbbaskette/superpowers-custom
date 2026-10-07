@@ -25,6 +25,8 @@ bash tests/hooks/test-session-start.sh
 bash tests/hooks/test-run-hook-cmd-windows.sh
 bash tests/claude-code/test-sdd-workspace.sh
 bash tests/codex-plugin-sync/test-sync-to-codex-plugin.sh
+bash tests/opencode/test-plugin-loading.sh
+bash tests/opencode/test-bootstrap-caching.sh
 npm ci --prefix tests/brainstorm-server --ignore-scripts --no-audit --no-fund
 npm test --prefix tests/brainstorm-server
 node scripts/build-local-plugin.mjs

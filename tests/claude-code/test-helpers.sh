@@ -7,23 +7,54 @@ run_claude() {
     local prompt="$1"
     local timeout="${2:-60}"
     local allowed_tools="${3:-}"
-    local output_file=$(mktemp)
+    if [ "${SUPERPOWERS_RUN_MODEL_EVALS:-}" != 1 ]; then
+        echo "Live model evaluation is opt-in: set SUPERPOWERS_RUN_MODEL_EVALS=1 after authorizing runtime usage." >&2
+        return 2
+    fi
+    local candidate
+    candidate="${SUPERPOWERS_EVAL_PLUGIN_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)}"
+    candidate="$(cd "$candidate" && pwd -P)" || return 2
+    [ -f "$candidate/.claude-plugin/plugin.json" ] || { echo "Invalid candidate plugin: $candidate" >&2; return 2; }
+    local evidence_root="${SUPERPOWERS_EVAL_RUN_DIR:-${TMPDIR:-/tmp}}"
+    mkdir -p "$evidence_root"
+    local evidence_dir
+    evidence_dir=$(mktemp -d "$evidence_root/superpowers-eval.XXXXXX")
+    local output_file="$evidence_dir/transcript.jsonl"
+    printf '%s\n' "$prompt" > "$evidence_dir/prompt.txt"
+    node - "$candidate" > "$evidence_dir/candidate.json" <<'NODE' || return 2
+const fs = require('node:fs'), path = require('node:path'), crypto = require('node:crypto');
+const root = process.argv[2], files = [];
+function walk(relative) {
+  const absolute = path.join(root, relative), stat = fs.lstatSync(absolute);
+  if (stat.isSymbolicLink()) throw new Error('Candidate symlinks need review: ' + relative);
+  if (stat.isDirectory()) for (const name of fs.readdirSync(absolute).sort()) walk(path.join(relative, name));
+  else files.push({path: relative, sha256: crypto.createHash('sha256').update(fs.readFileSync(absolute)).digest('hex')});
+}
+for (const relative of ['skills', 'hooks', '.claude-plugin/plugin.json']) walk(relative);
+console.log(JSON.stringify({root, version: JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin/plugin.json'))).version, files}, null, 2));
+NODE
+    claude --version > "$evidence_dir/runtime.txt" 2>&1 || return 2
 
     # Build command as an argv array so timeout wraps claude directly.
-    local cmd=(claude -p "$prompt")
+    local cmd=(claude -p "$prompt" --plugin-dir "$candidate" --add-dir "$candidate"
+        --output-format stream-json --verbose --no-session-persistence
+        --strict-mcp-config --mcp-config '{"mcpServers":{}}'
+        --tools 'Read,Write,Edit,Bash,Skill' --permission-mode dontAsk)
     if [ -n "$allowed_tools" ]; then
         cmd+=(--allowed-tools="$allowed_tools")
     fi
 
     # Run Claude in headless mode with timeout
-    if timeout "$timeout" "${cmd[@]}" > "$output_file" 2>&1; then
+    echo "Candidate: $candidate; evidence: $evidence_dir" >&2
+    if timeout "$timeout" "${cmd[@]}" > "$output_file" 2> "$evidence_dir/stderr.txt"; then
         cat "$output_file"
-        rm -f "$output_file"
+        printf '0\n' > "$evidence_dir/exit-code.txt"
         return 0
     else
         local exit_code=$?
         cat "$output_file" >&2
-        rm -f "$output_file"
+        cat "$evidence_dir/stderr.txt" >&2
+        printf '%s\n' "$exit_code" > "$evidence_dir/exit-code.txt"
         return $exit_code
     fi
 }
