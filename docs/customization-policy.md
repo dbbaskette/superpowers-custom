@@ -7,6 +7,9 @@ Retain upstream license and attribution. Internal skill namespace remains superp
 Version 6.4.1-custom.1 selectively backports fixes from upstream v6.4.1 (5bf4e78).
 This is not a full v6.4.1 merge; see upstream-6.4.1-integration.md for adopted and deferred changes.
 
+Version 6.4.2-custom.1 retains that policy and selectively incorporates subsequent upstream
+development fixes. See upstream-6.4.2-integration.md for exact sources and validation scope.
+
 Default: spec plus implementation plan for substantial work, one combined approval, then
 execution through verification. Clear small fixes and already-approved plans do not require
 another ceremony. Skills are model-neutral and honor host tool/authority boundaries.
