@@ -127,10 +127,10 @@ ${toolMapping}
       const firstUser = output.messages.find(m => m.info.role === 'user');
       if (!firstUser || !firstUser.parts.length) return;
 
-      // Guard: skip if first user message already contains bootstrap.
+      // Guard: recognize our actual injected part, not words a user may quote.
       // This prevents double injection when OpenCode passes an already
       // transformed in-memory message array through the hook again.
-      if (firstUser.parts.some(p => p.type === 'text' && p.text.includes('EXTREMELY_IMPORTANT'))) return;
+      if (firstUser.parts.some(p => p.type === 'text' && p.text === bootstrap)) return;
 
       const ref = firstUser.parts[0];
       firstUser.parts.unshift({ ...ref, type: 'text', text: bootstrap });

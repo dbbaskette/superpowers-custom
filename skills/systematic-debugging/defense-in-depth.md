@@ -1,122 +1,39 @@
-# Defense-in-Depth Validation
+# Validation at meaningful boundaries
 
-## Overview
+Use this reference when multiple callers or trust boundaries can independently introduce
+invalid data. Trace the supported failure first; choose validation points from actual bypass
+paths rather than adding the same check to every internal function.
 
-When you fix a bug caused by invalid data, adding validation at one place feels sufficient. But that single check can be bypassed by different code paths, refactoring, or mocks.
+- Validate external input at the boundary that owns its contract.
+- Guard dangerous side effects when another caller can bypass earlier validation.
+- Preserve an invariant inside a module when its entry contract does not already establish it.
+- Add focused diagnostics only when they help distinguish unresolved causes; redact secrets.
 
-**Core principle:** Validate at EVERY layer data passes through. Make the bug structurally impossible.
+For an empty working-directory bug, rejecting an empty value at the public entrypoint may
+be sufficient. A separately callable Git operation may also need a guard. Explain what each
+additional check catches and test those distinct paths. Passing tests support those cases;
+they do not prove that a bug is impossible.
 
-## Why Multiple Layers
+## Filesystem containment example
 
-Single validation: "We fixed the bug"
-Multiple layers: "We made the bug impossible"
+For an existing directory, resolve symbolic links and compare path components. A string
+prefix treats sibling paths such as `/tmp-other` as descendants of `/tmp`.
 
-Different layers catch different cases:
-- Entry validation catches most bugs
-- Business logic catches edge cases
-- Environment guards prevent context-specific dangers
-- Debug logging helps when other layers fail
+```javascript
+import { realpathSync } from 'node:fs';
+import { isAbsolute, relative, sep } from 'node:path';
 
-## The Four Layers
-
-### Layer 1: Entry Point Validation
-**Purpose:** Reject obviously invalid input at API boundary
-
-```typescript
-function createProject(name: string, workingDirectory: string) {
-  if (!workingDirectory || workingDirectory.trim() === '') {
-    throw new Error('workingDirectory cannot be empty');
-  }
-  if (!existsSync(workingDirectory)) {
-    throw new Error(`workingDirectory does not exist: ${workingDirectory}`);
-  }
-  if (!statSync(workingDirectory).isDirectory()) {
-    throw new Error(`workingDirectory is not a directory: ${workingDirectory}`);
-  }
-  // ... proceed
+function isStrictDescendant(root, directory) {
+  const delta = relative(realpathSync(root), realpathSync(directory));
+  return delta !== '' && delta !== '..' &&
+    !delta.startsWith('..' + sep) && !isAbsolute(delta);
 }
 ```
 
-### Layer 2: Business Logic Validation
-**Purpose:** Ensure data makes sense for this operation
+This rejects the root itself and symlinks leading outside it. It requires existing paths and
+is an illustrative preflight, not protection against concurrent filesystem replacement.
+Use a disposable workspace for tests of Git side effects. Strong adversarial filesystem
+boundaries need an operation-level design appropriate to the platform.
 
-```typescript
-function initializeWorkspace(projectDir: string, sessionId: string) {
-  if (!projectDir) {
-    throw new Error('projectDir required for workspace initialization');
-  }
-  // ... proceed
-}
-```
-
-### Layer 3: Environment Guards
-**Purpose:** Prevent dangerous operations in specific contexts
-
-```typescript
-async function gitInit(directory: string) {
-  // In tests, refuse git init outside temp directories
-  if (process.env.NODE_ENV === 'test') {
-    const normalized = normalize(resolve(directory));
-    const tmpDir = normalize(resolve(tmpdir()));
-
-    if (!normalized.startsWith(tmpDir)) {
-      throw new Error(
-        `Refusing git init outside temp dir during tests: ${directory}`
-      );
-    }
-  }
-  // ... proceed
-}
-```
-
-### Layer 4: Debug Instrumentation
-**Purpose:** Capture context for forensics
-
-```typescript
-async function gitInit(directory: string) {
-  const stack = new Error().stack;
-  logger.debug('About to git init', {
-    directory,
-    cwd: process.cwd(),
-    stack,
-  });
-  // ... proceed
-}
-```
-
-## Applying the Pattern
-
-When you find a bug:
-
-1. **Trace the data flow** - Where does bad value originate? Where used?
-2. **Map all checkpoints** - List every point data passes through
-3. **Add validation at each layer** - Entry, business, environment, debug
-4. **Test each layer** - Try to bypass layer 1, verify layer 2 catches it
-
-## Example from Session
-
-Bug: Empty `projectDir` caused `git init` in source code
-
-**Data flow:**
-1. Test setup → empty string
-2. `Project.create(name, '')`
-3. `WorkspaceManager.createWorkspace('')`
-4. `git init` runs in `process.cwd()`
-
-**Four layers added:**
-- Layer 1: `Project.create()` validates not empty/exists/writable
-- Layer 2: `WorkspaceManager` validates projectDir not empty
-- Layer 3: `WorktreeManager` refuses git init outside tmpdir in tests
-- Layer 4: Stack trace logging before git init
-
-**Result:** All 1847 tests passed, bug impossible to reproduce
-
-## Key Insight
-
-All four layers were necessary. During testing, each layer caught bugs the others missed:
-- Different code paths bypassed entry validation
-- Mocks bypassed business logic checks
-- Edge cases on different platforms needed environment guards
-- Debug logging identified structural misuse
-
-**Don't stop at one validation point.** Add checks at every layer.
+Verify that valid inputs still work and the supported invalid/bypass cases are rejected.
+Prefer one clear owner for each invariant; add layers only for distinct failure modes.

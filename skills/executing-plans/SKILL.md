@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: "Execute an approved implementation plan through the requested completion boundary."
+description: "Execute an approved plan in the current session through its requested completion boundary."
 ---
 
 # Execute the approved plan

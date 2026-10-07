@@ -1,5 +1,8 @@
 # Testing CLAUDE.md Skills Documentation
 
+Historical experiment, not current workflow instructions. Use ../SKILL.md and
+../testing-skills-with-subagents.md for this fork's proportional evaluation policy.
+
 Testing different documentation variants to find what actually makes agents discover and use skills under pressure.
 
 ## Test Scenarios

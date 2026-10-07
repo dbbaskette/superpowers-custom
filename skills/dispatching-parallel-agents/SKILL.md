@@ -1,6 +1,6 @@
 ---
 name: dispatching-parallel-agents
-description: "Coordinate permitted parallel work across independent tasks with nonoverlapping ownership."
+description: "Coordinate permitted parallel investigations or workstreams with independent ownership."
 ---
 
 # Parallel work

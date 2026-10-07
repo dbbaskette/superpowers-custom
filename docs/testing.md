@@ -1,35 +1,43 @@
-# Testing Superpowers
+# Testing the maintained fork
 
-Superpowers has two distinct kinds of tests, each in its own directory:
+## Local release suite
 
-- **`tests/`** — does the plugin's non-LLM code work? Bash + node + python integration tests for brainstorm-server JS, OpenCode plugin loading, codex-plugin sync, and analysis utilities.
-- **`evals/`** — do agents behave correctly on real LLM sessions? Python harness driving real tmux sessions of Claude Code / Codex / Gemini CLI, with an LLM actor and verifier judging skill compliance.
+Read the project's local CI instructions, inspect
+`bash scripts/ci/tart-macos.sh --dry-run`, then run `bash scripts/ci/tart-macos.sh`.
+The disposable macOS VM runs custom package and evaluation-harness checks, startup hooks,
+SDD workspace helpers, Codex sync, OpenCode bootstrap checks, and the complete brainstorm
+server suite, then builds the install artifact. Logs identify source state and environment.
+Native Windows checks skip on macOS; no Windows runtime pass is implied.
 
-## Plugin tests
-
-Live in `tests/`. Currently:
-
-- `tests/brainstorm-server/` — node test suite for the brainstorm server JS code.
-- `tests/opencode/` — bash tests for OpenCode plugin loading, bootstrap caching, and tool registration.
-- `tests/codex-plugin-sync/` — bash sync verification.
-- `tests/kimi/` — bash/Python checks for Kimi plugin manifest wiring.
-- `tests/claude-code/test-helpers.sh`, `analyze-token-usage.py` — utilities used by remaining bash tests.
-- `tests/claude-code/test-subagent-driven-development.sh` — agent-can-describe-SDD test (no drill counterpart; tests description-recall, not behavior).
-- `tests/claude-code/test-subagent-driven-development-integration.sh` — extended SDD integration with token analysis (drill covers the YAGNI subset; bash adds commit-count, Claude Code task-tracking, and token telemetry assertions).
-- `tests/claude-code/test-worktree-native-preference.sh` — RED-GREEN-REFACTOR validation for worktree skill (drill covers the PRESSURE phase; bash also covers RED/GREEN baselines).
-- `tests/explicit-skill-requests/` — Haiku-specific, multi-turn, and skill-name-prompted tests not covered by drill.
-
-Run plugin tests via the relevant directory's `run-*.sh` or `npm test`.
-
-## Skill behavior evals
-
-Live in `evals/`. Drill is the harness; scenarios live at `evals/scenarios/*.yaml`. See `evals/README.md` for setup. Quick start:
+For focused checks, use:
 
 ```bash
-cd evals
-uv sync --extra dev
-export ANTHROPIC_API_KEY=sk-...
-uv run drill run triggering-test-driven-development -b claude
+node --test tests/custom/*.test.mjs
+bash tests/hooks/test-session-start.sh
+bash tests/opencode/test-bootstrap-caching.sh
 ```
 
-Drill scenarios are slow (3-30+ minutes each) and run real LLM sessions. They are not part of CI today; the natural follow-up is a tiered model (fast subset on PR, full sweep nightly + on-demand).
+The custom harness test uses a fake CLI to check candidate selection, evidence retention,
+failure propagation, and opt-in behavior. It does not contact a model.
+
+## Behavioral evaluation
+
+See [the scenario runner](../tests/claude-code/README.md) and
+[skill evaluation guidance](../skills/writing-skills/testing-skills-with-subagents.md).
+Live evaluation is opt-in and requires authorization for the actual runtime/usage.
+Keep prompts and raw transcripts; report candidate hashes, outcomes, and limits. Independent
+host-agent scenarios may also provide qualitative evidence when permitted.
+
+Evaluate task outcomes and authority boundaries rather than fixed review counts, wording,
+or particular tool names. Include counterexamples where a material choice needs user input.
+Reuse evidence for unchanged behavior and rerun affected scenarios after meaningful fixes.
+
+The original custom release's [evaluation record](custom-evaluation.md) is historical evidence.
+It is not a benchmark for subsequent changes. Record new results with their release.
+
+## Historical upstream tests
+
+The optional upstream Drill harness is a separate repository, not included in this checkout
+or local package. Older documents referring to `evals/README.md` describe an upstream setup.
+Legacy recall/worktree experiments remain for history, outside this fork's default runner.
+Do not reintroduce their retired process expectations to make them pass.

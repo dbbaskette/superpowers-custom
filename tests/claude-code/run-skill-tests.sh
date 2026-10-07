@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Test runner for Claude Code skills
-# Tests skills by invoking Claude Code CLI and verifying behavior
+# Local infrastructure checks by default; live outcome scenarios are opt-in.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -15,18 +15,10 @@ echo "Test time: $(date)"
 echo "Claude version: $(claude --version 2>/dev/null || echo 'not found')"
 echo ""
 
-# Check if Claude Code is available
-if ! command -v claude &> /dev/null; then
-    echo "ERROR: Claude Code CLI not found"
-    echo "Install Claude Code first: https://code.claude.com"
-    exit 1
-fi
-
 # Parse command line arguments
 VERBOSE=false
 SPECIFIC_TEST=""
-TIMEOUT=900  # Per-test-file budget; must exceed the file's worst case
-             # (test-subagent-driven-development.sh: 9 prompts x 90s each)
+TIMEOUT=1800  # Four optional scenarios, each with a bounded model invocation.
 RUN_INTEGRATION=false
 
 while [[ $# -gt 0 ]]; do
@@ -53,15 +45,15 @@ while [[ $# -gt 0 ]]; do
             echo "Options:"
             echo "  --verbose, -v        Show verbose output"
             echo "  --test, -t NAME      Run only the specified test"
-            echo "  --timeout SECONDS    Set timeout per test (default: 900)"
+            echo "  --timeout SECONDS    Set timeout per test (default: 1800)"
             echo "  --integration, -i    Run integration tests (slow, 10-30 min)"
             echo "  --help, -h           Show this help"
             echo ""
             echo "Tests:"
-            echo "  test-subagent-driven-development.sh  Test skill loading and requirements"
+            echo "  test-sdd-workspace.sh  Local workspace helper regression checks"
             echo ""
             echo "Integration Tests (use --integration):"
-            echo "  test-subagent-driven-development-integration.sh  Full workflow execution"
+            echo "  test-subagent-driven-development.sh  Opt-in candidate workflow scenarios"
             exit 0
             ;;
         *)
@@ -74,18 +66,21 @@ done
 
 # List of skill tests to run (fast unit tests)
 tests=(
-    "test-worktree-path-policy.sh"
     "test-sdd-workspace.sh"
-    "test-subagent-driven-development.sh"
 )
 
 # Integration tests (slow, full execution)
 integration_tests=(
-    "test-subagent-driven-development-integration.sh"
+    "test-subagent-driven-development.sh"
 )
 
 # Add integration tests if requested
 if [ "$RUN_INTEGRATION" = true ]; then
+    if [ "${SUPERPOWERS_RUN_MODEL_EVALS:-}" != 1 ]; then
+        echo "Live evaluations require SUPERPOWERS_RUN_MODEL_EVALS=1 and authorized runtime usage." >&2
+        exit 2
+    fi
+    command -v claude >/dev/null || { echo "Claude CLI is required for live scenarios" >&2; exit 2; }
     tests+=("${integration_tests[@]}")
 fi
 
@@ -111,11 +106,6 @@ for test in "${tests[@]}"; do
         echo "  [SKIP] Test file not found: $test"
         skipped=$((skipped + 1))
         continue
-    fi
-
-    if [ ! -x "$test_path" ]; then
-        echo "  Making $test executable..."
-        chmod +x "$test_path"
     fi
 
     start_time=$(date +%s)

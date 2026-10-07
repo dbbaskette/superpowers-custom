@@ -40,10 +40,20 @@ const secondOutput = makeOutput(`${scenario} bootstrap second step`);
 await transform({}, secondOutput);
 const afterSecond = { existsCount, readCount };
 
+// A transform can see its previous output or a user's quoted warning marker.
+await transform({}, firstOutput);
+const quotedMarkerOutput = makeOutput('Review a document containing EXTREMELY_IMPORTANT');
+await transform({}, quotedMarkerOutput);
+const originalQuotedTextPreserved = quotedMarkerOutput.messages[0].parts.some(
+  part => part.text === 'Review a document containing EXTREMELY_IMPORTANT'
+);
+
 const result = {
   scenario,
   firstBootstrapParts: countBootstrapParts(firstOutput),
   secondBootstrapParts: countBootstrapParts(secondOutput),
+  quotedMarkerBootstrapParts: countBootstrapParts(quotedMarkerOutput),
+  originalQuotedTextPreserved,
   staleMentionMapping: bootstrapText(firstOutput).includes('@mention'),
   staleTaskMapping: bootstrapText(firstOutput).includes('`Task` tool with subagents'),
   mapsSubagentToTask: bootstrapText(firstOutput).includes('`task` with `subagent_type: "general"`'),
@@ -83,7 +93,7 @@ function makeOutput(text) {
 
 function countBootstrapParts(output) {
   return output.messages[0].parts.filter(
-    (part) => part.type === 'text' && part.text.includes('EXTREMELY_IMPORTANT')
+    (part) => part.type === 'text' && part.text.startsWith('<EXTREMELY_IMPORTANT>\nYou have superpowers.\n')
   ).length;
 }
 
@@ -100,6 +110,9 @@ function assertPresentBootstrap(result) {
   }
   if (result.secondBootstrapParts !== 1) {
     failures.push(`expected second transform to inject one bootstrap part, got ${result.secondBootstrapParts}`);
+  }
+  if (result.quotedMarkerBootstrapParts !== 1 || !result.originalQuotedTextPreserved) {
+    failures.push('expected quoted generic marker to receive bootstrap and preserve the user text');
   }
   if (result.firstReadCount !== 1) {
     failures.push(`expected first transform to read SKILL.md once, got ${result.firstReadCount}`);
@@ -132,6 +145,9 @@ function assertMissingBootstrap(result) {
   }
   if (result.secondBootstrapParts !== 0) {
     failures.push(`expected no bootstrap on second missing-file transform, got ${result.secondBootstrapParts}`);
+  }
+  if (result.quotedMarkerBootstrapParts !== 0 || !result.originalQuotedTextPreserved) {
+    failures.push('expected missing skill to leave quoted user text alone');
   }
   if (result.firstReadCount !== 0 || result.secondReadCount !== 0) {
     failures.push(`expected missing file path to avoid reads, got ${result.secondReadCount}`);

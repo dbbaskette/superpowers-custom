@@ -1,5 +1,9 @@
 # Persuasion Principles for Skill Design
 
+Historical research reference. Its examples of mandatory process and compliance pressure
+are not this fork's policy. Use SKILL.md and testing-skills-with-subagents.md for current
+authoring and evaluation; read this document only when studying earlier experiments.
+
 ## Overview
 
 LLMs respond to the same persuasion principles as humans. Understanding this psychology helps you design more effective skills - not to manipulate, but to ensure critical practices are followed even under pressure.
